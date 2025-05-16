@@ -1,4 +1,3 @@
-import { getData } from "./services/getData";
 import { AppContainer } from "./components/appContainer";
 import { Card } from "./components/card";
 
