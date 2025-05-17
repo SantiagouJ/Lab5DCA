@@ -1,4 +1,3 @@
-import { Products } from "../utils/types";
 import { store, State } from "../flux/Store";
 import { ProductActions } from "../flux/Actions";
 

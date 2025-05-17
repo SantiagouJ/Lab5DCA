@@ -1,6 +1,3 @@
-import { StorageActions } from "../flux/Actions";
-import { State } from "../flux/Store";
-
 export class AppContainer extends HTMLElement {
   constructor() {
     super();
