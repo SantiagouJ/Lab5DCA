@@ -26,47 +26,64 @@ class Store {
     private _listeners: Listener[] = [];
 
     constructor() {
-        AppDispatcher.register(this._handleActions.bind(this)); // Bind the context of this method to the Store instance
+    const saved = localStorage.getItem("flux:persist");
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            this._myState = {
+                ...this._myState,
+                ...parsed,
+            };
+        } catch (e) {
+            console.error("Error parsing localStorage state:", e);
+        }
     }
+
+    AppDispatcher.register(this._handleActions.bind(this));
+}
 
     getState() {
         return this._myState;
     }
 
     _handleActions(action: Action): void {
-        const productAction = action as ProductAction;
-        switch (action.type) {
-            case ProductActionTypes.ADD_TO_CART:
-                if(typeof productAction.payload === 'object'){
-                    this._myState = {
-                        ...this._myState,
-                        cart: [...this._myState.cart, productAction.payload]
-                    }
-                }
-                this._emitChange()
-                break;
-            case ProductActionTypes.REMOVE_FROM_CART:
-                if(typeof productAction.payload === 'object'){
-                    this._myState = {
-                        ...this._myState,
-                        cart: this._myState.cart.filter(product => product.id !== productAction.payload.id)
-                    }
-                }
-                this._emitChange()
-                break;
+    const productAction = action as ProductAction;
+    switch (action.type) {
+        case ProductActionTypes.ADD_TO_CART:
+            if (typeof productAction.payload === 'object') {
+                this._myState = {
+                    ...this._myState,
+                    cart: [...this._myState.cart, productAction.payload]
+                };
+            }
+            this._emitChange();
+            this.persist(); // ✅ solo aquí
+            break;
 
-            case LoadStorageActionTypes.LOAD_STORAGE:
-                if(typeof productAction.payload === 'object'){
-                    this._myState = {
-                        ...this._myState,
-                        ...productAction.payload
-                    }
-                }
-                this._emitChange()
-                break;
-        }
-        this.persist()  
+        case ProductActionTypes.REMOVE_FROM_CART:
+            if (typeof productAction.payload === 'object') {
+                this._myState = {
+                    ...this._myState,
+                    cart: this._myState.cart.filter(product => product.id !== productAction.payload.id)
+                };
+            }
+            this._emitChange();
+            this.persist(); // ✅ también aquí
+            break;
+
+        case LoadStorageActionTypes.LOAD_STORAGE:
+            if (typeof productAction.payload === 'object') {
+                this._myState = {
+                    ...this._myState,
+                    ...productAction.payload
+                };
+            }
+            this._emitChange();
+            // ❌ NO persist() aquí — ya viene del localStorage
+            break;
     }
+}
+
     
     //notifica que la aplicacion cambió
     private _emitChange(): void {
@@ -87,9 +104,14 @@ class Store {
         this._listeners = this._listeners.filter(l => l !== listener);
     }
 
-    persist(){
-        localStorage.setItem("flux:persist", JSON.stringify(this._myState))
+    persist() {
+    try {
+        localStorage.setItem("flux:persist", JSON.stringify(this._myState));
+    } catch (e) {
+        console.error("Error guardando en localStorage", e);
     }
+}
+
 }
 
 export const store = new Store();

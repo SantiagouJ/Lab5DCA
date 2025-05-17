@@ -1,3 +1,6 @@
+import { StorageActions } from "../flux/Actions";
+import { State } from "../flux/Store";
+
 export class AppContainer extends HTMLElement {
   constructor() {
     super();
@@ -9,6 +12,7 @@ export class AppContainer extends HTMLElement {
     this.setupNavigation();
   }
 
+
   render() {
     if (!this.shadowRoot) return;
 
@@ -17,8 +21,7 @@ export class AppContainer extends HTMLElement {
       <main id="main-content"></main>
     `;
 
-    // Por defecto, renderiza la vista de productos
-    this.renderHome();
+    this.renderHome(); // Vista por defecto
   }
 
   setupNavigation() {
@@ -35,23 +38,22 @@ export class AppContainer extends HTMLElement {
   }
 
   renderHome() {
-  const main = this.shadowRoot?.querySelector("#main-content");
-  if (main) {
-    main.innerHTML = ""; // Limpiar el contenido
-    const card = document.createElement("product-card");
-    main.appendChild(card);
+    const main = this.shadowRoot?.querySelector("#main-content");
+    if (main) {
+      main.innerHTML = "";
+      const card = document.createElement("product-card");
+      main.appendChild(card);
+    }
   }
-}
-
 
   renderCart() {
-  const main = this.shadowRoot?.querySelector("#main-content");
-  if (main) {
-    main.innerHTML = ""; // Limpiar el contenido
-    const cart = document.createElement("cart-render");
-    main.appendChild(cart);
+    const main = this.shadowRoot?.querySelector("#main-content");
+    if (main) {
+      main.innerHTML = "";
+      const cart = document.createElement("cart-render");
+      main.appendChild(cart);
+    }
   }
 }
 
-}
-
+customElements.define("app-container", AppContainer);
